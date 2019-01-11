@@ -58,10 +58,8 @@ log = logging.getLogger("MoneroRPC")
 class JSONRPCException(Exception):
     def __init__(self, rpc_error):
         parent_args = []
-        try:
-            parent_args.append(rpc_error["message"])
-        except Exception:
-            pass
+        if 'message' in rpc_error:
+            parent_args.append(rpc_error['message'])
         Exception.__init__(self, *parent_args)
         self.error = rpc_error
         self.code = rpc_error["code"] if "code" in rpc_error else None
@@ -204,7 +202,9 @@ class AuthServiceProxy(object):
         if response.get("error", None) is not None:
             raise JSONRPCException(response["error"])
         elif "result" not in response:
-            raise JSONRPCException({"code": -343, "message": "missing JSON-RPC result"})
+            raise JSONRPCException(
+                {"code": -343, "message": "missing JSON-RPC result"}
+            )
         else:
             return response["result"]
 
